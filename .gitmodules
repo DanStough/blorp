@@ -1,9 +1,9 @@
 [submodule "consul-k8s"]
 	path = consul-k8s
-	url = git@github.com:hashicorp/consul-k8s.git
+	url = https://github.com/hashicorp/consul-k8s
 [submodule "consul-dataplane"]
 	path = consul-dataplane
-	url = git@github.com:hashicorp/consul-dataplane.git
+	url = https://github.com/hashicorp/consul-dataplane
 [submodule "consul-ce"]
 	path = consul-ce
-	url = git@github.com:hashicorp/consul.git
+	url = https://github.com/hashicorp/consul
