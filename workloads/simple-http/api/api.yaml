@@ -1,0 +1,97 @@
+# Service to expose api
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+spec:
+  selector:
+    app: api
+  ports:
+  - name: api
+    protocol: TCP
+    port: 8080
+    targetPort: api
+    appProtocol: http
+  - name: admin
+    protocol: TCP
+    port: 9090
+    targetPort: admin
+    appProtocol: http
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    app: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      serviceAccountName: api
+      containers:
+      - name: api
+        image: nicholasjackson/fake-service:v0.26.0
+        securityContext:
+          capabilities:
+            add: ["NET_ADMIN"]
+        ports:
+          - containerPort: 8080
+            name: api
+        env:
+        - name: "LISTEN_ADDR"
+          value: "0.0.0.0:8080"
+        - name: "NAME"
+          value: "api"
+        - name: "MESSAGE"
+          value: "API Response"
+        - name: "SERVER_TYPE"
+          value: "http"
+        - name: "LOG_LEVEL"
+          value: "debug"
+        - name: "LOG_FORMAT"
+          value: "json"
+        - name: "HTTP_CLIENT_KEEP_ALIVES"
+          value: "false"
+        resources:
+          limits:
+            cpu: 700m
+            memory: 500Mi
+      - name: api-admin
+        image: nicholasjackson/fake-service:v0.26.0
+        securityContext:
+          capabilities:
+            add: ["NET_ADMIN"]
+        ports:
+          - containerPort: 9090
+            name: admin
+        env:
+        - name: "LISTEN_ADDR"
+          value: "0.0.0.0:9090"
+        - name: "NAME"
+          value: "api-admin"
+        - name: "MESSAGE"
+          value: "API Admin Response"
+        - name: "SERVER_TYPE"
+          value: "http"
+        - name: "LOG_LEVEL"
+          value: "debug"
+        - name: "LOG_FORMAT"
+          value: "json"
+        - name: "HTTP_CLIENT_KEEP_ALIVES"
+          value: "false"
+        resources:
+          limits:
+            cpu: 700m
+            memory: 500Mi

@@ -1,0 +1,67 @@
+# Service to expose web
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  selector:
+    app: web
+  ports:
+  - name: web
+    protocol: TCP
+    port: 8080
+    targetPort: web
+    appProtocol: http
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      serviceAccountName: web
+      containers:
+      - name: web
+        image: nicholasjackson/fake-service:v0.26.0
+        securityContext:
+          capabilities:
+            add: ["NET_ADMIN"]
+        ports:
+          - containerPort: 8080
+            name: web
+        env:
+        - name: "LISTEN_ADDR"
+          value: "0.0.0.0:8080"
+        - name: "UPSTREAM_URIS"
+          value: "http://api:8080"
+        - name: "NAME"
+          value: "web"
+        - name: "MESSAGE"
+          value: "Hello World"
+        - name: "SERVER_TYPE"
+          value: "http"
+        - name: "LOG_LEVEL"
+          value: "debug"
+        - name: "LOG_FORMAT"
+          value: "json"
+        - name: "HTTP_CLIENT_KEEP_ALIVES"
+          value: "false"
+        resources:
+          limits:
+            cpu: 700m
+            memory: 500Mi

@@ -13,7 +13,8 @@ To shorten the feedback loop of the Consul development cycle, starting with a fo
 1. K8S Testings First
 2. Faster :runner:
     - uses existing docker containers and replaces only the binary
-    - pushes containers around locally - no remote registries required.
+    - [pushes containers around locally](https://skaffold.dev/docs/environment/local-cluster/) - no remote registries required.
+    - concurrent builds
 3. Implicitly tests "upgrade" scenarios. Re-deploying Consul on top of Consul.
 4. Some conveniences, like default port forwarding.
 
@@ -67,3 +68,4 @@ Tools I recommend when in doubt:
 1. Re-enable local development without a registry when the [bug is fixed in skaffold](https://github.com/GoogleContainerTools/skaffold/issues/7992)
 1. Make consul build faster
 1. Make applications re-deploy sidecars
+1. Make branches in repo for different consul versions or scenarios

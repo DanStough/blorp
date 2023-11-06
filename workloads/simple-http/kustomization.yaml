@@ -1,0 +1,4 @@
+namespace: default
+resources:
+  - ./api/api.yaml
+  - ./web/web.yaml

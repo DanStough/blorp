@@ -1,0 +1,99 @@
+apiVersion: skaffold/v3
+kind: Config
+metadata:
+  name: blorp
+build:
+# Consider a different tagging policy to eliminate image rebuilds
+  artifacts:
+  - image: consul
+    context: ./consul-ce
+    custom:
+      buildCommand: |
+        CONSUL_DEV_IMAGE=$IMAGE make dev-docker
+# .   docker
+#       dockerfile:  # This doesn't work because our dockerfile is not a self-contained build
+#       path: ./build-support/docker/Consul-Dev.dockerfile
+#       buildArgs:
+#         CONSUL_IMAGE_VERSION: latest
+      dependencies:
+        paths:
+        - ./agent/**/*.go
+        - ./acl/**/*.go
+        - ./command/**/*.go
+        - ./connect/**/*.go
+        - ./lib/**/*.go
+        ignore:
+        - ./**/*_test.go
+  - image: consul-k8s-control-plane
+    context: ./consul-k8s/control-plane
+    custom:
+      buildCommand: |
+        DEV_IMAGE=$IMAGE make -C .. control-plane-dev-skaffold
+      dependencies:
+        paths:
+        - .
+        ignore:
+        - ./**/*_test.go
+        - ./**/*.yaml
+        - ./**/*.yml
+  - image: consul-dataplane
+    context: ./consul-dataplane
+    custom:
+      buildCommand: |
+        DEV_IMAGE=$IMAGE OS=linux make skaffold
+      dependencies:
+        paths:
+        - .
+        ignore:
+        - ./**/*_test.go
+        - ./**/*.yaml
+        - ./**/*.yml
+  # TODO: Add UI build here and make it a dependency of Consul
+  # TODO: Add CRD build here and validate that somehow the helm chart re-deploys
+  local:
+    useBuildkit: true
+    concurrency: 0
+    push: false      # "false"" when copying images locally
+
+manifests:
+  kustomize:
+      paths:
+      - "./workloads/simple-http"
+
+deploy:
+  helm:
+    releases:
+    - name: consul-dev
+      chartPath: ./consul-k8s/charts/consul
+      valuesFiles:
+        - "values.yaml"
+      namespace: consul
+      createNamespace: true
+      setValueTemplates:
+        # global.image: '{{.IMAGE_REPO}}:{{.IMAGE_TAG}}@{{.IMAGE_DIGEST}}'
+        # global.imageK8S: '{{.IMAGE_REPO2}}:{{.IMAGE_TAG2}}@{{.IMAGE_DIGEST2}}'
+        # global.imageConsulDataplane: '{{.IMAGE_REPO2}}:{{.IMAGE_TAG2}}@{{.IMAGE_DIGEST2}}'
+        # This would be the name without using the registry
+        global.image: '{{.IMAGE_NAME}}:{{.IMAGE_TAG}}@{{.IMAGE_DIGEST}}'
+        global.imageK8S: '{{.IMAGE_NAME2}}:{{.IMAGE_TAG2}}@{{.IMAGE_DIGEST2}}'
+        global.imageConsulDataplane: '{{.IMAGE_NAME3}}:{{.IMAGE_TAG3}}@{{.IMAGE_DIGEST3}}'
+    # If dataplane changes, we need a rollout to adopt it
+    # hooks:
+    #   after:
+    #     - host:
+    #        command: 
+    #         - "kubectl get deployments -n default | tail +2 | awk '{ cmd=sprintf(\"kubectl rollout restart deployment -n default %s\", $2) ; system(cmd) }'"
+  kubectl: {}
+
+
+portForward:
+#  - resourceType: service
+#    resourceName: consul-ui 
+#    namespace: consul
+#    port: 80
+#    localPort: 8080
+ - resourceType: service
+   namespace: default
+   resourceName: web
+   port: 8080
+   localPort: 8081
