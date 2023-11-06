@@ -50,4 +50,5 @@ Tools I recommend when in doubt:
 [ ] Experiment with a go.work file at the root of the repo to share the API module.
 [ ] Build the UI
 [ ] Build CRDs and check for to redeploy
+[ ] Codespace Integration?
 
