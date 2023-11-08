@@ -2,7 +2,7 @@
 BLORP, or maybe Universal Consul Dev Environment
 
 ## Intro
-
+ 
 ### Purpose
 To shorten the feedback loop of the Consul development cycle, starting with a focus/integration on K8S.
 
@@ -46,9 +46,9 @@ Tools I recommend when in doubt:
 1. When you're done, CTRL+C to exit skaffold and have it clean up your cluster.
 
 ## TODO
-[ ] Have applications redeploy when consul-dataplane is redeployed
-[ ] Experiment with a go.work file at the root of the repo to share the API module.
-[ ] Build the UI
-[ ] Build CRDs and check for to redeploy
-[ ] Codespace Integration?
+- [ ] Have applications redeploy when consul-dataplane is redeployed
+- [ ] Experiment with a go.work file at the root of the repo to share the API module.
+- [ ] Build the UI
+- [ ] Build CRDs and check for to redeploy
+- [ ] Codespace Integration?
 
